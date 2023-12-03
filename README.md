@@ -23,7 +23,7 @@ Order Management API enables authorized user to managing orders and product by p
 
 ## API URL
     
-    http://20.247.139.109/docs
+    http://20.247.187.45/docs
 
 ## API Endpoint
 ### Orders
