@@ -11,19 +11,19 @@ router = APIRouter(
 )
 
 @router.get('/', response_model=List[schemas.OrderOut])
-def get_all_users_orders(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+async def get_all_users_orders(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     orders = db.query(models.Order).filter(models.Order.customer_id == current_user.id).all()
     return orders
 
 @router.get('/all', response_model=List[schemas.OrderOut])
-def get_all_orders(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+async def get_all_orders(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     if current_user.is_admin == False:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Unauthorized")
     orders = db.query(models.Order).all()
     return orders
 
 @router.get('/{id}', response_model=schemas.OrderOut)
-def get_order(id:int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+async def get_order(id:int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     order = db.query(models.Order).filter(models.Order.customer_id == id).first()
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Order with id {id} not found")
@@ -32,7 +32,7 @@ def get_order(id:int, db: Session = Depends(get_db), current_user: int = Depends
     return order
 
 @router.post('/', status_code=status.HTTP_201_CREATED, response_model=schemas.Order)
-def create_order(request: schemas.Order, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+async def create_order(request: schemas.Order, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     product = check_product(request, db)
     new_order = create_new_order(request, db, current_user, product)
     update_product_stock(request, db)
@@ -65,7 +65,7 @@ def create_new_order(request, db, current_user, product):
     return new_order
 
 @router.put('/{id}', status_code=status.HTTP_202_ACCEPTED)
-def update_order(id:int, request: schemas.Order, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+async def update_order(id:int, request: schemas.Order, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     if current_user.is_admin == False:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Unauthorized")
     order = db.query(models.Order).filter(models.Order.order_id == id)
@@ -76,7 +76,7 @@ def update_order(id:int, request: schemas.Order, db: Session = Depends(get_db), 
     return Response(status_code=status.HTTP_202_ACCEPTED)
 
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
-def delete_order(id:int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+async def delete_order(id:int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     if current_user.is_admin == False:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Unauthorized")
     order = db.query(models.Order).filter(models.Order.order_id == id)

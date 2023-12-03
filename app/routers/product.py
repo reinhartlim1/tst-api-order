@@ -32,7 +32,7 @@ def create_product(request: schemas.Product, db: Session = Depends(get_db), curr
     return new_product
 
 @router.put('/{id}', status_code=status.HTTP_202_ACCEPTED)
-def update_product(id:int, request: schemas.Product, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+async def update_product(id:int, request: schemas.Product, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     if current_user.is_admin == False:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Unauthorized")
     product = db.query(models.Product).filter(models.Product.product_id == id)
@@ -43,7 +43,7 @@ def update_product(id:int, request: schemas.Product, db: Session = Depends(get_d
     return Response(status_code=status.HTTP_202_ACCEPTED)
 
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
-def delete_product(id:int, db: Session = Depends(get_db)):
+async def delete_product(id:int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     if current_user.is_admin == False:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Unauthorized")
     product = db.query(models.Product).filter(models.Product.product_id == id)
