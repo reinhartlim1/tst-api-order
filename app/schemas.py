@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 class Product(BaseModel):
+    product_id: int
     product_name: str
     product_price: int
     product_stock: int
